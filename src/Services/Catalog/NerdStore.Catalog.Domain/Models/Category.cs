@@ -1,6 +1,6 @@
 using NerdStore.Core.DomainObjects;
 
-namespace NerdStore.Catalog.Domain;
+namespace NerdStore.Catalog.Domain.Models;
 
 public class Category : Entity
 {
