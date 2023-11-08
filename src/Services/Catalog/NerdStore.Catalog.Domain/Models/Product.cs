@@ -1,4 +1,5 @@
 using NerdStore.Core.DomainObjects;
+using NerdStore.Core.DomainObjects.Exceptions;
 using NerdStore.Core.DomainObjects.Interfaces;
 
 namespace NerdStore.Catalog.Domain.Models;
@@ -32,13 +33,13 @@ public class Product : Entity, IAggregateRoot
         Value = value;
         RegistrationDate = registrationDate;
         Image = image;
+
+        Validate();
     }
 
     public void Activate() => Active = true;
 
     public void Deactivate() => Active = false;
-
-    public void ChangeDescription(string description) => Description = description;
 
     public void ReplenishStock(int quantity) => QuantityInStock += quantity;
 
@@ -47,7 +48,14 @@ public class Product : Entity, IAggregateRoot
     public void DebitStock(int quantity)
     {
         if (quantity < 0) quantity *= -1;
+        if (!HasStock(quantity)) throw new DomainException("Estoque insuficiente");
         QuantityInStock -= quantity;
+    }
+
+    public void ChangeDescription(string description)
+    {
+        AssertionConcern.ValidateIfEmpty(description, "O campo Descricao do produto não pode estar vazio");
+        Description = description;
     }
 
     public void ChangeCategory(Category category)
@@ -58,5 +66,10 @@ public class Product : Entity, IAggregateRoot
 
     public void Validate()
     {
+        AssertionConcern.ValidateIfEmpty(Name, "O campo Nome do produto não pode estar vazio");
+        AssertionConcern.ValidateIfEmpty(Description, "O campo Descricao do produto não pode estar vazio");
+        AssertionConcern.ValidateIfEqual(CategoryId, Guid.Empty, "O campo CategoriaId do produto não pode estar vazio");
+        AssertionConcern.ValidateIfLessThan(Value, 1, "O campo Valor do produto não pode se menor igual a 0");
+        AssertionConcern.ValidateIfEmpty(Image, "O campo Imagem do produto não pode estar vazio");
     }
 }
