@@ -1,3 +1,4 @@
+using NerdStore.Catalog.Domain.ValueObjects;
 using NerdStore.Core.DomainObjects;
 using NerdStore.Core.DomainObjects.Exceptions;
 using NerdStore.Core.DomainObjects.Interfaces;
@@ -14,7 +15,7 @@ public class Product : Entity, IAggregateRoot
     public DateTime RegistrationDate { get; private set; }
     public string Image { get; private set; }
     public int QuantityInStock { get; private set; }
-
+    public Dimension Dimension { get; private set; }
     public Category Category { get; private set; }
 
     public Product(
@@ -24,7 +25,8 @@ public class Product : Entity, IAggregateRoot
         bool active,
         decimal value,
         DateTime registrationDate,
-        string image)
+        string image,
+        Dimension dimension)
     {
         CategoryId = categoryId;
         Name = name;
@@ -33,6 +35,7 @@ public class Product : Entity, IAggregateRoot
         Value = value;
         RegistrationDate = registrationDate;
         Image = image;
+        Dimension = dimension;
 
         Validate();
     }
