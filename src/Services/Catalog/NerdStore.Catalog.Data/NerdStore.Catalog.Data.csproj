@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameWorkCore" Version="7.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.sqlserver" Version="7.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NerdStore.Catalog.Domain\NerdStore.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\NerdStore.Core\NerdStore.Core.csproj" />
+  </ItemGroup>
+
+</Project>
