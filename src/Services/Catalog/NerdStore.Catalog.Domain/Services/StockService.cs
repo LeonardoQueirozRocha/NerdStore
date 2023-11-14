@@ -1,15 +1,21 @@
+using NerdStore.Catalog.Domain.Events;
 using NerdStore.Catalog.Domain.Interfaces.Repositories;
 using NerdStore.Catalog.Domain.Interfaces.Services;
+using NerdStore.Core.Bus;
 
 namespace NerdStore.Catalog.Domain.Services;
 
 public class StockService : IStockService
 {
     private readonly IProductRepository _productRepository;
+    private readonly IMediatrHandler _bus;
 
-    public StockService(IProductRepository productRepository)
+    public StockService(
+        IProductRepository productRepository,
+        IMediatrHandler bus)
     {
         _productRepository = productRepository;
+        _bus = bus;
     }
 
     public async Task<bool> DebitStockAsync(Guid productId, int quantity)
@@ -19,6 +25,9 @@ public class StockService : IStockService
         if (product is null || !product.HasStock(quantity)) return false;
 
         product.DebitStock(quantity);
+
+        if (product.QuantityInStock < 10)
+            await _bus.PublishEventAsync(new ProductBelowStockEvent(product.Id, product.QuantityInStock));
 
         _productRepository.Update(product);
 
