@@ -1,7 +1,7 @@
 using NerdStore.Catalog.Domain.Models;
 using NerdStore.Core.Data;
 
-namespace NerdStore.Catalog.Domain.Interfaces;
+namespace NerdStore.Catalog.Domain.Interfaces.Repositories;
 
 public interface IProductRepository : IRepository<Product>
 {
@@ -12,7 +12,7 @@ public interface IProductRepository : IRepository<Product>
 
     void Add(Product product);
     void Update(Product product);
-    
+
     void Add(Category category);
     void Update(Category category);
 }
