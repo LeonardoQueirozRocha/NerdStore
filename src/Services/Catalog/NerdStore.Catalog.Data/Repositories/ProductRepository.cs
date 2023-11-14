@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using NerdStore.Catalog.Domain.Interfaces;
+using NerdStore.Catalog.Domain.Interfaces.Repositories;
 using NerdStore.Catalog.Domain.Models;
 using NerdStore.Core.Data;
 
@@ -12,7 +12,8 @@ public class ProductRepository : IProductRepository
     public ProductRepository(CatalogContext context)
         => _context = context;
 
-    public IUnitOfWork UnitOfWork => _context;
+    public IUnitOfWork UnitOfWork
+        => _context;
 
     public async Task<IEnumerable<Product>> GetAllAsync()
         => await _context.Products.AsNoTracking().ToListAsync();
