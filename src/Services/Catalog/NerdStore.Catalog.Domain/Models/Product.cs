@@ -18,6 +18,8 @@ public class Product : Entity, IAggregateRoot
     public Dimension Dimension { get; private set; }
     public Category Category { get; private set; }
 
+    public Product() { }
+
     public Product(
         Guid categoryId,
         string name,
