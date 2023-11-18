@@ -1,17 +1,17 @@
-using NerdStore.Catalog.Application.DTOs;
+using NerdStore.Catalog.Application.ViewModels;
 
 namespace NerdStore.Catalog.Application.Services;
 
 public interface IProductAppService : IDisposable
 {
-    Task<IEnumerable<ProductDTO>> GetAllAsync();
-    Task<ProductDTO> GetByIdAsync(Guid id);
-    Task<IEnumerable<CategoryDTO>> GetCategoriesAsync();
-    Task<IEnumerable<ProductDTO>> GetByCategoryAsync(int code);
+    Task<IEnumerable<ProductViewModel>> GetAllAsync();
+    Task<ProductViewModel> GetByIdAsync(Guid id);
+    Task<IEnumerable<CategoryViewModel>> GetCategoriesAsync();
+    Task<IEnumerable<ProductViewModel>> GetByCategoryAsync(int code);
 
-    Task AddProductAsync(ProductDTO productDTO);
-    Task UpdateProductAsync(ProductDTO productDTO);
+    Task AddProductAsync(ProductViewModel productDTO);
+    Task UpdateProductAsync(ProductViewModel productDTO);
 
-    Task<ProductDTO> DebitStockAsync(Guid id, int quantity);
-    Task<ProductDTO> ReplenishStockAsync(Guid id, int quantity);
+    Task<ProductViewModel> DebitStockAsync(Guid id, int quantity);
+    Task<ProductViewModel> ReplenishStockAsync(Guid id, int quantity);
 }
