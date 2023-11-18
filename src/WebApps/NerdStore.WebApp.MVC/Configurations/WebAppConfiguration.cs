@@ -15,8 +15,8 @@ public static class WebAppConfiguration
         services.AddControllersWithViews();
 
         services.AddAutoMapper(
-            typeof(DomainToDTOMappingProfile),
-            typeof(DTOToDomainMappingProfile));
+            typeof(DomainToViewModelMappingProfile),
+            typeof(ViewModelToDomainMappingProfile));
 
         services.AddMediatR(config =>
             config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
@@ -41,7 +41,7 @@ public static class WebAppConfiguration
 
         app.UseEndpoints(endpoint =>
         {
-            endpoint.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+            endpoint.MapControllerRoute("default", "{controller=Showcase}/{action=Index}/{id?}");
             endpoint.MapRazorPages();
         });
     }
