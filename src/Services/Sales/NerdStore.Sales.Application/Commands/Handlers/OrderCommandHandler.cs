@@ -1,4 +1,6 @@
 using MediatR;
+using NerdStore.Core.Communication.Mediator;
+using NerdStore.Core.Messages.CommonMessages.Notifications;
 using NerdStore.Sales.Domain.Interfaces.Repositories;
 using NerdStore.Sales.Domain.Models;
 
@@ -7,10 +9,14 @@ namespace NerdStore.Sales.Application.Commands.Handlers;
 public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IMediatorHandler _mediatorHandler;
 
-    public OrderCommandHandler(IOrderRepository orderRepository)
+    public OrderCommandHandler(
+        IOrderRepository orderRepository,
+        IMediatorHandler mediatorHandler)
     {
         _orderRepository = orderRepository;
+        _mediatorHandler = mediatorHandler;
     }
 
     public async Task<bool> Handle(AddOrderItemCommand message, CancellationToken cancellationToken)
@@ -58,14 +64,13 @@ public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
         }
     }
 
-    private static bool ValidateCommand(AddOrderItemCommand message)
+    private bool ValidateCommand(AddOrderItemCommand message)
     {
         if (message.IsValid()) return true;
 
-        foreach (var error in message.ValidationResult.Errors)
-        {
-            // throw an error event
-        }
+        message.ValidationResult.Errors.ForEach(async error =>
+            await _mediatorHandler.PublishNotificationAsync(
+                new DomainNotification(message.MessageType,error.ErrorMessage)));
 
         return false;
     }
