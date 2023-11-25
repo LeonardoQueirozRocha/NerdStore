@@ -26,7 +26,9 @@ public class CatalogContext : DbContext, IUnitOfWork
     {
         foreach (var entry in ChangeTracker
             .Entries()
-            .Where(entry => entry.Entity.GetType().GetProperty("RegistrationDate") != null))
+            .Where(entry => entry.Entity
+                .GetType()
+                .GetProperty("RegistrationDate") != null))
         {
             if (entry.State == EntityState.Added)
                 entry.Property("RegistrationDate").CurrentValue = DateTime.Now;
