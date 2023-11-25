@@ -1,6 +1,8 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NerdStore.Catalog.Application.Services;
-using NerdStore.Core.Bus;
+using NerdStore.Core.Communication.Mediator;
+using NerdStore.Core.Messages.CommonMessages.Notifications;
 using NerdStore.Sales.Application.Commands;
 using NerdStore.WebApp.MVC.Controllers.Base;
 
@@ -13,7 +15,10 @@ public class CartController : MainController
 
     public CartController(
         IProductAppService productAppService,
-        IMediatorHandler mediatorHandler)
+        IMediatorHandler mediatorHandler,
+        INotificationHandler<DomainNotification> notificationHandler) : base(
+            notificationHandler,
+            mediatorHandler)
     {
         _productAppService = productAppService;
         _mediatorHandler = mediatorHandler;
@@ -40,7 +45,10 @@ public class CartController : MainController
 
         await _mediatorHandler.SendCommandAsync(command);
 
-        TempData["Error"] = "Produto Indisponível";
+        if (IsOperationValid())
+            return RedirectToAction("Index");
+
+        TempData["Errors"] = GetErrorMessages();
         return RedirectToAction("ProductDetail", "Showcase", new { id });
     }
 }
