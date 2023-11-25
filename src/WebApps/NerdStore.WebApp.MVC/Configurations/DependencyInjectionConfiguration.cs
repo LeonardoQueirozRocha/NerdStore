@@ -10,6 +10,9 @@ using NerdStore.Catalog.Domain.Services;
 using NerdStore.Core.Bus;
 using NerdStore.Sales.Application.Commands;
 using NerdStore.Sales.Application.Commands.Handlers;
+using NerdStore.Sales.Data;
+using NerdStore.Sales.Data.Repositories;
+using NerdStore.Sales.Domain.Interfaces.Repositories;
 
 namespace NerdStore.WebApp.MVC.Configurations;
 
@@ -18,16 +21,18 @@ public static class DependencyInjectionConfiguration
     public static void AddDependencies(this IServiceCollection services)
     {
         // MediatR
-        services.AddScoped<IMediatrHandler, MediatrHandler>();
+        services.AddScoped<IMediatorHandler, MediatorHandler>();
 
         // Catalog
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductAppService, ProductAppService>();
         services.AddScoped<IStockService, StockService>();
-        services.AddScoped<CatalogContext>();
         services.AddScoped<INotificationHandler<ProductBelowStockEvent>, ProductEventHandler>();
+        services.AddScoped<CatalogContext>();
 
         // Sales
+        services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IRequestHandler<AddOrderItemCommand, bool>, OrderCommandHandler>();
+        services.AddScoped<SalesContext>();
     }
 }

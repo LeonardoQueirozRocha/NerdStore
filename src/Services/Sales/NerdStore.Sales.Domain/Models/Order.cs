@@ -18,7 +18,9 @@ public class Order : Entity, IAggregateRoot
     public DateTime RegistrationDate { get; private set; }
     public OrderStatus OrderStatus { get; private set; }
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems;
-    public virtual Voucher Voucher { get; set; }
+
+    // EF Relation
+    public Voucher Voucher { get; private set; }
 
     public Order(
         Guid customerId,
@@ -70,10 +72,8 @@ public class Order : Entity, IAggregateRoot
         Discount = discount;
     }
 
-    public bool ExistOrderItem(OrderItem item)
-    {
-        return _orderItems.Any(p => p.ProductId == item.ProductId);
-    }
+    public bool ExistOrderItem(OrderItem item) =>
+        _orderItems.Any(p => p.ProductId == item.ProductId);
 
     public void AddItem(OrderItem item)
     {
@@ -126,27 +126,19 @@ public class Order : Entity, IAggregateRoot
         UpdateItem(item);
     }
 
-    public void MakeDraft()
-    {
+    public void MakeDraft() =>
         OrderStatus = OrderStatus.Draft;
-    }
 
-    public void StartOrder()
-    {
+    public void StartOrder() =>
         OrderStatus = OrderStatus.Started;
-    }
 
-    public void FinalizeOrder()
-    {
+    public void FinalizeOrder() =>
         OrderStatus = OrderStatus.Paid;
-    }
 
-    public void CancelOrder()
-    {
+    public void CancelOrder() =>
         OrderStatus = OrderStatus.Canceled;
-    }
 
-    private OrderItem GetItemByProductId(Guid productId) =>
+    public OrderItem GetItemByProductId(Guid productId) =>
         OrderItems.FirstOrDefault(p => p.ProductId == productId) ??
             throw new DomainException("O item não pertence ao pedido");
 
