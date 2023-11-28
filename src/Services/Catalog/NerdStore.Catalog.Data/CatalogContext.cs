@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NerdStore.Catalog.Domain.Models;
 using NerdStore.Core.Data;
+using NerdStore.Core.Messages;
 
 namespace NerdStore.Catalog.Data;
 
@@ -18,6 +19,8 @@ public class CatalogContext : DbContext, IUnitOfWork
             .SelectMany(e => e.GetProperties()
                 .Where(p => p.ClrType == typeof(string))))
             property.SetColumnType("varchar(100)");
+
+        modelBuilder.Ignore<Event>();
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CatalogContext).Assembly);
     }

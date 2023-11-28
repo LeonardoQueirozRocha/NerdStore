@@ -1,6 +1,7 @@
 using MediatR;
 using NerdStore.Core.Communication.Mediator;
 using NerdStore.Core.Messages.CommonMessages.Notifications;
+using NerdStore.Sales.Application.Events;
 using NerdStore.Sales.Domain.Interfaces.Repositories;
 using NerdStore.Sales.Domain.Models;
 
@@ -32,36 +33,43 @@ public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
 
         if (order is null)
         {
-            CreateOrderDraft(message.CustomerId, orderItem);
+            CreateOrderDraft(message.CustomerId, message.ProductId, orderItem);
         }
         else
         {
-            CreateOrder(order, orderItem);
+            UpdateOrder(order, orderItem);
         }
+
+        order.AddEvent(new OrderItemAddedEvent(
+            order.CustomerId,
+            order.Id,
+            message.Name,
+            message.ProductId,
+            message.UnitValue,
+            message.Quantity));
 
         return await _orderRepository.UnitOfWork.Commit();
     }
 
-    private void CreateOrderDraft(Guid customerId, OrderItem item)
+    private void CreateOrderDraft(Guid customerId, Guid productId, OrderItem item)
     {
         var order = Order.OrderFactory.NewOrderDraft(customerId);
         order.AddItem(item);
         _orderRepository.Add(order);
+        order.AddEvent(new OrderDraftStartedEvent(customerId, productId));
     }
 
-    private void CreateOrder(Order order, OrderItem item)
+    private void UpdateOrder(Order order, OrderItem item)
     {
         var hasOrderItem = order.ExistOrderItem(item);
         order.AddItem(item);
 
         if (hasOrderItem)
-        {
             _orderRepository.UpdateItem(order.GetItemByProductId(item.ProductId));
-        }
         else
-        {
             _orderRepository.AddItem(item);
-        }
+
+        order.AddEvent(new UpdatedOrderEvent(order.CustomerId, order.Id, order.TotalValue));
     }
 
     private bool ValidateCommand(AddOrderItemCommand message)
@@ -70,7 +78,7 @@ public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
 
         message.ValidationResult.Errors.ForEach(async error =>
             await _mediatorHandler.PublishNotificationAsync(
-                new DomainNotification(message.MessageType,error.ErrorMessage)));
+                new DomainNotification(message.MessageType, error.ErrorMessage)));
 
         return false;
     }

@@ -1,13 +1,28 @@
+using NerdStore.Core.Messages;
+
 namespace NerdStore.Core.DomainObjects;
 
 public abstract class Entity
 {
-    public Guid Id { get; set; }
+    private List<Event> _notifications;
 
-    protected Entity()
-    {
+    public Guid Id { get; set; }
+    public IReadOnlyCollection<Event> Notifications => _notifications?.AsReadOnly();
+
+    protected Entity() =>
         Id = Guid.NewGuid();
+
+    public void AddEvent(Event eventItem)
+    {
+        _notifications ??= new List<Event>();
+        _notifications.Add(eventItem);
     }
+
+    public void RemoveEvent(Event eventItem) =>
+        _notifications?.Remove(eventItem);
+    
+    public void ClearEvents() =>
+        _notifications?.Clear();
 
     public override bool Equals(object? obj)
     {
@@ -30,20 +45,14 @@ public abstract class Entity
         return a.Equals(b);
     }
 
-    public static bool operator !=(Entity a, Entity b)
-    {
-        return !(a == b);
-    }
+    public static bool operator !=(Entity a, Entity b) =>
+        !(a == b);
 
-    public override int GetHashCode()
-    {
-        return GetType().GetHashCode() * 907 + Id.GetHashCode();
-    }
+    public override int GetHashCode() =>
+        GetType().GetHashCode() * 907 + Id.GetHashCode();
 
-    public override string ToString()
-    {
-        return $"{GetType().Name} [Id ={Id}]";
-    }
+    public override string ToString() =>
+        $"{GetType().Name} [Id ={Id}]";
 
     public virtual bool IsValid()
     {
