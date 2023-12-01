@@ -2,20 +2,20 @@ using NerdStore.Core.Messages;
 
 namespace NerdStore.Sales.Application.Events;
 
-public class UpdatedOrderEvent : Event
+public class OrderVoucherApplied : Event
 {
     public Guid CustomerId { get; private set; }
     public Guid OrderId { get; private set; }
-    public decimal TotalValue { get; private set; }
+    public Guid VoucherId { get; private set; }
 
-    public UpdatedOrderEvent(
+    public OrderVoucherApplied(
         Guid customerId,
         Guid orderId,
-        decimal totalValue)
+        Guid voucherId)
     {
         AggregateId = orderId;
         CustomerId = customerId;
         OrderId = orderId;
-        TotalValue = totalValue;
+        VoucherId = voucherId;
     }
 }

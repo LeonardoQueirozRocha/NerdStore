@@ -1,4 +1,6 @@
+using FluentValidation.Results;
 using NerdStore.Core.DomainObjects;
+using NerdStore.Sales.Application.Validators;
 using NerdStore.Sales.Domain.Models.Enums;
 
 namespace NerdStore.Sales.Domain.Models;
@@ -18,4 +20,7 @@ public class Voucher : Entity
 
     // EF Relation
     public ICollection<Order> Orders { get; set; }
+
+    internal ValidationResult ValidateIfApplicable() => 
+        new ApplicableVoucherValidator().Validate(this);
 }

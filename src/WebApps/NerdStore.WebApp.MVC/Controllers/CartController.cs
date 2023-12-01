@@ -37,6 +37,7 @@ public class CartController : MainController
     public async Task<IActionResult> AddItem(Guid id, int quantity)
     {
         var product = await _productAppService.GetByIdAsync(id);
+        
         if (product is null) return BadRequest();
 
         if (product.QuantityInStock < quantity)
@@ -61,45 +62,53 @@ public class CartController : MainController
         return RedirectToAction("ProductDetail", "Showcase", new { id });
     }
 
-    // [HttpPost("remove-item")]
-    // public async Task<IActionResult> RemoveItem(Guid id)
-    // {
-    //     var product = await _productAppService.GetByIdAsync(id);
-    //     if (product != null) return BadRequest();
+    [HttpPost("remove-item")]
+    public async Task<IActionResult> RemoveItem(Guid id)
+    {
+        var product = await _productAppService.GetByIdAsync(id);
 
-    //     var command = new RemoveOrderItemCommand(CustomerId, id);
-    //     await _mediatorHandler.SendCommandAsync(command);
+        if (product is null) return BadRequest();
 
-    //     if (IsOperationValid())
-    //         return RedirectToAction("Index");
+        var command = new RemoveOrderItemCommand(CustomerId, id);
 
-    //     return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
-    // }
+        await _mediatorHandler.SendCommandAsync(command);
 
-    // [HttpPost("update-item")]
-    // public async Task<IActionResult> UpdateItem(Guid id, int quantity)
-    // {
-    //     var product = await _productAppService.GetByIdAsync(id);
-    //     if (product != null) return BadRequest();
+        if (IsOperationValid())
+            return RedirectToAction("Index");
 
-    //     var command = new UpdateOrderItemCommand(CustomerId, id, quantity);
-    //     await _mediatorHandler.SendCommandAsync(command);
+        return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
+    }
 
-    //     if (IsOperationValid())
-    //         return RedirectToAction("Index");
+    [HttpPost("update-item")]
+    public async Task<IActionResult> UpdateItem(Guid id, int quantity)
+    {
+        var product = await _productAppService.GetByIdAsync(id);
 
-    //     return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
-    // }
+        if (product is null) return BadRequest();
 
-    // [HttpPost("apply-voucher")]
-    // public async Task<IActionResult> ApplyVoucher(string voucherCode)
-    // {
-    //     var command = new ApplyOrderVoucherCommand(CustomerId, voucherCode);
-    //     await _mediatorHandler.SendCommandAsync(command);
+        var command = new UpdateOrderItemCommand(
+            CustomerId,
+            product.Id, 
+            quantity);
 
-    //     if (IsOperationValid())
-    //         return RedirectToAction("Index");
+        await _mediatorHandler.SendCommandAsync(command);
 
-    //     return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
-    // }
+        if (IsOperationValid())
+            return RedirectToAction("Index");
+
+        return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
+    }
+
+    [HttpPost("apply-voucher")]
+    public async Task<IActionResult> ApplyVoucher(string voucherCode)
+    {
+        var command = new ApplyVoucherOrderCommand(CustomerId, voucherCode);
+        
+        await _mediatorHandler.SendCommandAsync(command);
+
+        if (IsOperationValid())
+            return RedirectToAction("Index");
+
+        return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
+    }
 }
