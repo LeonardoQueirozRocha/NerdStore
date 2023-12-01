@@ -39,9 +39,13 @@ public static class DependencyInjectionConfiguration
 
         // Sales
         services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddScoped<IRequestHandler<AddOrderItemCommand, bool>, OrderCommandHandler>();
         services.AddScoped<IOrderQueries, OrderQueries>();
         services.AddScoped<SalesContext>();
+
+        services.AddScoped<IRequestHandler<AddOrderItemCommand, bool>, OrderCommandHandler>();
+        services.AddScoped<IRequestHandler<UpdateOrderItemCommand, bool>, OrderCommandHandler>();
+        services.AddScoped<IRequestHandler<RemoveOrderItemCommand, bool>, OrderCommandHandler>();
+        services.AddScoped<IRequestHandler<ApplyVoucherOrderCommand, bool>, OrderCommandHandler>();
 
         services.AddScoped<INotificationHandler<OrderDraftStartedEvent>, OrderEventHandler>();
         services.AddScoped<INotificationHandler<UpdatedOrderEvent>, OrderEventHandler>();

@@ -1,3 +1,4 @@
+using FluentValidation.Results;
 using NerdStore.Core.DomainObjects;
 using NerdStore.Core.DomainObjects.Exceptions;
 using NerdStore.Core.DomainObjects.Interfaces;
@@ -35,9 +36,20 @@ public class Order : Entity, IAggregateRoot
         _orderItems = new List<OrderItem>();
     }
 
-    protected Order()
-    {
+    protected Order() => 
         _orderItems = new List<OrderItem>();
+
+    public ValidationResult ApplyVoucher(Voucher voucher)
+    {
+        var validationResult = voucher.ValidateIfApplicable();
+
+        if (!validationResult.IsValid) return validationResult;
+
+        Voucher = voucher;
+        VoucherUsed = true;
+        CalculateOrderValue();
+
+        return validationResult;
     }
 
     public void CalculateOrderValue()

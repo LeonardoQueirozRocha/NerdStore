@@ -1,5 +1,7 @@
+using FluentValidation.Results;
 using MediatR;
 using NerdStore.Core.Communication.Mediator;
+using NerdStore.Core.Messages;
 using NerdStore.Core.Messages.CommonMessages.Notifications;
 using NerdStore.Sales.Application.Events;
 using NerdStore.Sales.Domain.Interfaces.Repositories;
@@ -7,7 +9,11 @@ using NerdStore.Sales.Domain.Models;
 
 namespace NerdStore.Sales.Application.Commands.Handlers;
 
-public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
+public class OrderCommandHandler :
+    IRequestHandler<AddOrderItemCommand, bool>,
+    IRequestHandler<UpdateOrderItemCommand, bool>,
+    IRequestHandler<RemoveOrderItemCommand, bool>,
+    IRequestHandler<ApplyVoucherOrderCommand, bool>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IMediatorHandler _mediatorHandler;
@@ -32,13 +38,9 @@ public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
             message.UnitValue);
 
         if (order is null)
-        {
             CreateOrderDraft(message.CustomerId, message.ProductId, orderItem);
-        }
         else
-        {
             UpdateOrder(order, orderItem);
-        }
 
         order.AddEvent(new OrderItemAddedEvent(
             order.CustomerId,
@@ -47,6 +49,102 @@ public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
             message.ProductId,
             message.UnitValue,
             message.Quantity));
+
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
+    public async Task<bool> Handle(UpdateOrderItemCommand message, CancellationToken cancellationToken)
+    {
+        if (!ValidateCommand(message)) return false;
+
+        var order = await GetOrderAsync(message.CustomerId);
+
+        if (order is null) return false;
+
+        var orderItem = await GetOrderItemAsync(order, message.ProductId);
+
+        if (orderItem is null) return false;
+
+        order.UpdateUnits(orderItem, message.Quantity);
+
+        order.AddEvent(new UpdatedOrderEvent(
+            order.CustomerId,
+            order.Id,
+            order.TotalValue));
+
+        order.AddEvent(new ProductOrderUpdatedEvent(
+            order.CustomerId,
+            order.Id,
+            message.ProductId,
+            message.Quantity));
+
+        _orderRepository.UpdateItem(orderItem);
+        _orderRepository.Update(order);
+
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
+    public async Task<bool> Handle(RemoveOrderItemCommand message, CancellationToken cancellationToken)
+    {
+        if (!ValidateCommand(message)) return false;
+
+        var order = await GetOrderAsync(message.CustomerId);
+
+        if (order is null) return false;
+
+        var orderItem = await GetOrderItemAsync(order, message.ProductId);
+
+        if (orderItem is null) return false;
+
+        order.RemoveItem(orderItem);
+
+        order.AddEvent(new UpdatedOrderEvent(
+            order.CustomerId,
+            order.Id,
+            order.TotalValue));
+
+        order.AddEvent(new ProductOrderRemovedEvent(
+            message.CustomerId,
+            order.Id,
+            message.ProductId));
+
+        _orderRepository.RemoveItem(orderItem);
+        _orderRepository.Update(order);
+
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
+    public async Task<bool> Handle(ApplyVoucherOrderCommand message, CancellationToken cancellationToken)
+    {
+        if (!ValidateCommand(message)) return false;
+
+        var order = await GetOrderAsync(message.CustomerId);
+
+        if (order is null) return false;
+
+        var voucher = await GetVoucherAsync(message.VoucherCode);
+
+        if (voucher is null) return false;
+
+        var applicableVoucherValidator = order.ApplyVoucher(voucher);
+
+        if (!applicableVoucherValidator.IsValid)
+        {
+            PublishErrorsNotificationsAsync(applicableVoucherValidator.Errors);
+            return false;
+        }
+
+        order.AddEvent(new UpdatedOrderEvent(
+            order.CustomerId,
+            order.Id,
+            order.TotalValue));
+
+        order.AddEvent(new OrderVoucherApplied(
+            message.CustomerId,
+            order.Id,
+            voucher.Id));
+
+        _orderRepository.Update(order);
 
         return await _orderRepository.UnitOfWork.Commit();
     }
@@ -72,14 +170,56 @@ public class OrderCommandHandler : IRequestHandler<AddOrderItemCommand, bool>
         order.AddEvent(new UpdatedOrderEvent(order.CustomerId, order.Id, order.TotalValue));
     }
 
-    private bool ValidateCommand(AddOrderItemCommand message)
+    private bool ValidateCommand(Command message)
     {
         if (message.IsValid()) return true;
 
-        message.ValidationResult.Errors.ForEach(async error =>
-            await _mediatorHandler.PublishNotificationAsync(
-                new DomainNotification(message.MessageType, error.ErrorMessage)));
+        PublishErrorsNotificationsAsync(message.ValidationResult.Errors);
 
         return false;
+    }
+
+    private void PublishErrorsNotificationsAsync(List<ValidationFailure> errors) =>
+        errors.ForEach(async error =>
+            await _mediatorHandler.PublishNotificationAsync(
+                new DomainNotification(error.ErrorCode, error.ErrorMessage)));
+
+    private async Task<Order> GetOrderAsync(Guid customerId)
+    {
+        var order = await _orderRepository.GetOrderDraftByCustomerIdAsync(customerId);
+
+        if (order is null)
+        {
+            await _mediatorHandler.PublishNotificationAsync(new DomainNotification("order", "Pedido não encontrado!"));
+            return null;
+        }
+
+        return order;
+    }
+
+    private async Task<OrderItem> GetOrderItemAsync(Order order, Guid productId)
+    {
+        var orderItem = await _orderRepository.GetItemByOrderAsync(order.Id, productId);
+
+        if (!order.ExistOrderItem(orderItem))
+        {
+            await _mediatorHandler.PublishNotificationAsync(new DomainNotification("order", "Item do pedido não encontrado"));
+            return null;
+        }
+
+        return orderItem;
+    }
+
+    private async Task<Voucher> GetVoucherAsync(string voucherCode)
+    {
+        var voucher = await _orderRepository.GetVoucherByCodeAsync(voucherCode);
+
+        if (voucher is null)
+        {
+            await _mediatorHandler.PublishNotificationAsync(new DomainNotification("order", "Voucher não encontrado!"));
+            return null;
+        }
+
+        return voucher;
     }
 }
