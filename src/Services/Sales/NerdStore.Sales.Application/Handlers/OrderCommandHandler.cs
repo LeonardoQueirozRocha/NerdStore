@@ -3,11 +3,12 @@ using MediatR;
 using NerdStore.Core.Communication.Mediator;
 using NerdStore.Core.Messages;
 using NerdStore.Core.Messages.CommonMessages.Notifications;
+using NerdStore.Sales.Application.Commands;
 using NerdStore.Sales.Application.Events;
 using NerdStore.Sales.Domain.Interfaces.Repositories;
 using NerdStore.Sales.Domain.Models;
 
-namespace NerdStore.Sales.Application.Commands.Handlers;
+namespace NerdStore.Sales.Application.Handlers;
 
 public class OrderCommandHandler :
     IRequestHandler<AddOrderItemCommand, bool>,
