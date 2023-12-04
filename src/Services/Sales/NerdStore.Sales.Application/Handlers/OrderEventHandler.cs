@@ -1,6 +1,7 @@
 using MediatR;
+using NerdStore.Sales.Application.Events;
 
-namespace NerdStore.Sales.Application.Events.Handlers;
+namespace NerdStore.Sales.Application.Handlers;
 
 public class OrderEventHandler :
     INotificationHandler<OrderDraftStartedEvent>,
