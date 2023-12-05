@@ -19,7 +19,7 @@ public abstract class MainController : Controller
         _mediatorHandler = mediatorHandler;
     }
 
-    protected bool IsOperationValid() =>
+    protected bool IsValid() =>
         !_notificationHandler.HasNotifications();
 
     protected IEnumerable<string> GetErrorMessages() => 

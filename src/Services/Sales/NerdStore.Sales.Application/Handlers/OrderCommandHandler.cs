@@ -1,7 +1,10 @@
 using FluentValidation.Results;
 using MediatR;
 using NerdStore.Core.Communication.Mediator;
+using NerdStore.Core.DomainObjects.DTOs;
+using NerdStore.Core.Extensions;
 using NerdStore.Core.Messages;
+using NerdStore.Core.Messages.CommonMessages.IntegrationEvents;
 using NerdStore.Core.Messages.CommonMessages.Notifications;
 using NerdStore.Sales.Application.Commands;
 using NerdStore.Sales.Application.Events;
@@ -14,7 +17,8 @@ public class OrderCommandHandler :
     IRequestHandler<AddOrderItemCommand, bool>,
     IRequestHandler<UpdateOrderItemCommand, bool>,
     IRequestHandler<RemoveOrderItemCommand, bool>,
-    IRequestHandler<ApplyVoucherOrderCommand, bool>
+    IRequestHandler<ApplyVoucherOrderCommand, bool>,
+    IRequestHandler<StartOrderCommand, bool>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IMediatorHandler _mediatorHandler;
@@ -150,6 +154,30 @@ public class OrderCommandHandler :
         return await _orderRepository.UnitOfWork.Commit();
     }
 
+    public async Task<bool> Handle(StartOrderCommand message, CancellationToken cancellationToken)
+    {
+        if (!ValidateCommand(message)) return false;
+
+        var order = await _orderRepository.GetOrderDraftByCustomerIdAsync(message.CustomerId);
+
+        order.StartOrder();
+
+        var orderProductsList = InsertOrderProductList(order);
+
+        order.AddEvent(new StartedOrderIntegrationEvent(
+            order.Id,
+            order.CustomerId,
+            order.TotalValue,
+            orderProductsList,
+            message.CreditCardName,
+            message.CreditCardNumber,
+            message.CreditCardExpirationDate,
+            message.CreditCardCvv));
+
+        _orderRepository.Update(order);
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
     private void CreateOrderDraft(Guid customerId, Guid productId, OrderItem item)
     {
         var order = Order.OrderFactory.NewOrderDraft(customerId);
@@ -222,5 +250,23 @@ public class OrderCommandHandler :
         }
 
         return voucher;
+    }
+
+    private static OrderProductsList InsertOrderProductList(Order order)
+    {
+        var items = new List<Item>();
+        order.OrderItems.ForEach(i => items.Add(new Item
+        {
+            Id = i.ProductId,
+            Quantity = i.Quantity
+        }));
+
+        var orderProductsList = new OrderProductsList
+        {
+            OrderId = order.Id,
+            Items = items
+        };
+
+        return orderProductsList;
     }
 }
