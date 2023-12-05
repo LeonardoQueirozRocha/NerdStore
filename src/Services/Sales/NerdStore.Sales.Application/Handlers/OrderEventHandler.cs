@@ -1,4 +1,5 @@
 using MediatR;
+using NerdStore.Core.Messages.CommonMessages.IntegrationEvents;
 using NerdStore.Sales.Application.Events;
 
 namespace NerdStore.Sales.Application.Handlers;
@@ -6,7 +7,8 @@ namespace NerdStore.Sales.Application.Handlers;
 public class OrderEventHandler :
     INotificationHandler<OrderDraftStartedEvent>,
     INotificationHandler<UpdatedOrderEvent>,
-    INotificationHandler<OrderItemAddedEvent>
+    INotificationHandler<OrderItemAddedEvent>,    
+    INotificationHandler<RejectedStockOrderIntegrationEvent>
 {
     public Task Handle(OrderDraftStartedEvent notification, CancellationToken cancellationToken)
     {
@@ -20,6 +22,12 @@ public class OrderEventHandler :
 
     public Task Handle(OrderItemAddedEvent notification, CancellationToken cancellationToken)
     {
+        return Task.CompletedTask;
+    }
+
+    public Task Handle(RejectedStockOrderIntegrationEvent notification, CancellationToken cancellationToken)
+    {
+        // Cancel order process - return error to the customer
         return Task.CompletedTask;
     }
 }
