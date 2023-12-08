@@ -10,6 +10,17 @@ using NerdStore.Catalog.Domain.Services;
 using NerdStore.Core.Communication.Mediator;
 using NerdStore.Core.Messages.CommonMessages.IntegrationEvents;
 using NerdStore.Core.Messages.CommonMessages.Notifications;
+using NerdStore.Payments.AntiCorruption;
+using NerdStore.Payments.AntiCorruption.ConfigurationManagements;
+using NerdStore.Payments.AntiCorruption.ExternalServices;
+using NerdStore.Payments.AntiCorruption.Interfaces;
+using NerdStore.Payments.Business.Events;
+using NerdStore.Payments.Business.Interfaces.Facades;
+using NerdStore.Payments.Business.Interfaces.Repositories;
+using NerdStore.Payments.Business.Interfaces.Services;
+using NerdStore.Payments.Business.Services;
+using NerdStore.Payments.Data;
+using NerdStore.Payments.Data.Repositories;
 using NerdStore.Sales.Application.Commands;
 using NerdStore.Sales.Application.Events;
 using NerdStore.Sales.Application.Handlers;
@@ -53,5 +64,16 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<INotificationHandler<OrderDraftStartedEvent>, OrderEventHandler>();
         services.AddScoped<INotificationHandler<UpdatedOrderEvent>, OrderEventHandler>();
         services.AddScoped<INotificationHandler<OrderItemAddedEvent>, OrderEventHandler>();
+        services.AddScoped<INotificationHandler<RefusedPaymentIntegrationEvent>, OrderEventHandler>();
+
+        // Payment
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<ICreditCardPaymentFacade, CreditCardPaymentFacade>();
+        services.AddScoped<IPayPalGateway, PayPalGateway>();
+        services.AddScoped<IConfigurationManagement, ConfigurationManagement>();
+        services.AddScoped<PaymentContext>();
+
+        services.AddScoped<INotificationHandler<ConfirmedStockOrderIntegrationEvent>, PaymentEventHandler>();
     }
 }

@@ -2,25 +2,24 @@ using Microsoft.EntityFrameworkCore;
 using NerdStore.Core.Communication.Mediator;
 using NerdStore.Core.Data;
 using NerdStore.Core.Messages;
-using NerdStore.Sales.Data.Extensions;
-using NerdStore.Sales.Domain.Models;
+using NerdStore.Payments.Business.Models;
+using NerdStore.Payments.Data.Extensions;
 
-namespace NerdStore.Sales.Data;
+namespace NerdStore.Payments.Data;
 
-public class SalesContext : DbContext, IUnitOfWork
+public class PaymentContext : DbContext, IUnitOfWork
 {
     private readonly IMediatorHandler _mediatorHandler;
 
-    public SalesContext(
-        DbContextOptions<SalesContext> options,
+    public PaymentContext(
+        DbContextOptions<PaymentContext> options,
         IMediatorHandler mediatorHandler) : base(options)
     {
         _mediatorHandler = mediatorHandler;
     }
 
-    public DbSet<Order> Orders { get; set; }
-    public DbSet<OrderItem> OrderItems { get; set; }
-    public DbSet<Voucher> Vouchers { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
 
     public async Task<bool> Commit()
     {
@@ -54,14 +53,13 @@ public class SalesContext : DbContext, IUnitOfWork
 
         modelBuilder.Ignore<Event>();
 
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(SalesContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentContext).Assembly);
 
         foreach (var relationship in modelBuilder.Model
             .GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys()))
             relationship.DeleteBehavior = DeleteBehavior.ClientSetNull;
-
-        modelBuilder.HasSequence<int>("MySequence").StartsAt(1000).IncrementsBy(1);
+            
         base.OnModelCreating(modelBuilder);
     }
 }

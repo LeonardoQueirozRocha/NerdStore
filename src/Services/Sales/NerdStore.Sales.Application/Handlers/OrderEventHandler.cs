@@ -7,8 +7,9 @@ namespace NerdStore.Sales.Application.Handlers;
 public class OrderEventHandler :
     INotificationHandler<OrderDraftStartedEvent>,
     INotificationHandler<UpdatedOrderEvent>,
-    INotificationHandler<OrderItemAddedEvent>,    
-    INotificationHandler<RejectedStockOrderIntegrationEvent>
+    INotificationHandler<OrderItemAddedEvent>,
+    INotificationHandler<RejectedStockOrderIntegrationEvent>,
+    INotificationHandler<RefusedPaymentIntegrationEvent>
 {
     public Task Handle(OrderDraftStartedEvent notification, CancellationToken cancellationToken)
     {
@@ -28,6 +29,11 @@ public class OrderEventHandler :
     public Task Handle(RejectedStockOrderIntegrationEvent notification, CancellationToken cancellationToken)
     {
         // Cancel order process - return error to the customer
+        return Task.CompletedTask;
+    }
+
+    public Task Handle(RefusedPaymentIntegrationEvent notification, CancellationToken cancellationToken)
+    {
         return Task.CompletedTask;
     }
 }
