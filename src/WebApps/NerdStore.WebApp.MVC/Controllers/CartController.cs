@@ -57,8 +57,7 @@ public class CartController : MainController
 
         await _mediatorHandler.SendCommandAsync(command);
 
-        if (IsValid())
-            return RedirectToAction("Index");
+        if (IsValid()) return RedirectToAction("Index");
 
         TempData["Errors"] = GetErrorMessages();
         return RedirectToAction("ProductDetail", "Showcase", new { id });
@@ -75,8 +74,7 @@ public class CartController : MainController
 
         await _mediatorHandler.SendCommandAsync(command);
 
-        if (IsValid())
-            return RedirectToAction("Index");
+        if (IsValid()) return RedirectToAction("Index");
 
         return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
     }
@@ -95,8 +93,7 @@ public class CartController : MainController
 
         await _mediatorHandler.SendCommandAsync(command);
 
-        if (IsValid())
-            return RedirectToAction("Index");
+        if (IsValid()) return RedirectToAction("Index");
 
         return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
     }
@@ -108,8 +105,7 @@ public class CartController : MainController
 
         await _mediatorHandler.SendCommandAsync(command);
 
-        if (IsValid())
-            return RedirectToAction("Index");
+        if (IsValid()) return RedirectToAction("Index");
 
         return View("Index", await _orderQueries.GetCustomerCartAsync(CustomerId));
     }

@@ -23,7 +23,7 @@ public class ProductAppService : IProductAppService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllAsync() => 
+    public async Task<IEnumerable<ProductViewModel>> GetAllAsync() =>
         _mapper.Map<IEnumerable<ProductViewModel>>(await _productRepository.GetAllAsync());
 
     public async Task<ProductViewModel> GetByIdAsync(Guid id) => 

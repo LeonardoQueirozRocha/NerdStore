@@ -1,3 +1,4 @@
+using NerdStore.Core.Extensions;
 using NerdStore.Sales.Application.Queries.ViewModels;
 using NerdStore.Sales.Domain.Interfaces.Repositories;
 using NerdStore.Sales.Domain.Models;
@@ -22,11 +23,10 @@ public class OrderQueries : IOrderQueries
 
         var cart = new CartViewModel(order);
 
-        if (order.VoucherId != null)
+        if (order.VoucherId is not null)
             cart.VoucherCode = order.Voucher.Code;
 
-        foreach (var item in order.OrderItems)
-            cart.Items.Add(new CartItemViewModel(item));
+        order.OrderItems.ForEach(item => cart.Items.Add(new CartItemViewModel(item)));
 
         return cart;
     }
@@ -39,8 +39,7 @@ public class OrderQueries : IOrderQueries
 
         var ordersViewModel = new List<OrderViewModel>();
 
-        foreach (var order in orders)
-            ordersViewModel.Add(new OrderViewModel(order));
+        orders.ForEach(order => ordersViewModel.Add(new OrderViewModel(order)));
 
         return ordersViewModel;
     }

@@ -14,16 +14,12 @@ public class ProductsAdminController : Controller
     }
 
     [HttpGet("products-admin")]
-    public async Task<IActionResult> Index()
-    {
-        return View(await _productAppService.GetAllAsync());
-    }
+    public async Task<IActionResult> Index() =>
+        View(await _productAppService.GetAllAsync());
 
     [HttpGet("new-product")]
-    public async Task<IActionResult> NewProduct()
-    {
-        return View(await FillCategoriesAsync(new ProductViewModel()));
-    }
+    public async Task<IActionResult> NewProduct() =>
+        View(await FillCategoriesAsync(new ProductViewModel()));
 
     [HttpPost("new-product")]
     public async Task<IActionResult> NewProduct(ProductViewModel productViewModel)
@@ -36,10 +32,8 @@ public class ProductsAdminController : Controller
     }
 
     [HttpGet("edit-product")]
-    public async Task<IActionResult> UpdateProduct(Guid id)
-    {
-        return View(await FillCategoriesAsync(await _productAppService.GetByIdAsync(id)));
-    }
+    public async Task<IActionResult> UpdateProduct(Guid id) =>
+        View(await FillCategoriesAsync(await _productAppService.GetByIdAsync(id)));
 
     [HttpPost("edit-product")]
     public async Task<IActionResult> UpdateProduct(Guid id, ProductViewModel productViewModel)
@@ -56,22 +50,16 @@ public class ProductsAdminController : Controller
     }
 
     [HttpGet("products-update-stock")]
-    public async Task<IActionResult> UpdateStock(Guid id)
-    {
-        return View("Stock", await _productAppService.GetByIdAsync(id));
-    }
+    public async Task<IActionResult> UpdateStock(Guid id) =>
+        View("Stock", await _productAppService.GetByIdAsync(id));
 
     [HttpPost("products-update-stock")]
     public async Task<IActionResult> UpdateStock(Guid id, int quantity)
     {
-        if (quantity > 0)
-        {
+        if (IsQuantityMoreThanZero(quantity))
             await _productAppService.ReplenishStockAsync(id, quantity);
-        }
         else
-        {
             await _productAppService.DebitStockAsync(id, quantity);
-        }
 
         return View("Index", await _productAppService.GetAllAsync());
     }
@@ -81,4 +69,6 @@ public class ProductsAdminController : Controller
         product.Categories = await _productAppService.GetCategoriesAsync();
         return product;
     }
+
+    private static bool IsQuantityMoreThanZero(int quantity) => quantity > 0;
 }
