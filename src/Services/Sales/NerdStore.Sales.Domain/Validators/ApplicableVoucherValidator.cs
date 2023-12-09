@@ -1,7 +1,7 @@
 using FluentValidation;
 using NerdStore.Sales.Domain.Models;
 
-namespace NerdStore.Sales.Application.Validators;
+namespace NerdStore.Sales.Domain.Validators;
 
 public class ApplicableVoucherValidator : AbstractValidator<Voucher>
 {

@@ -1,6 +1,6 @@
 using NerdStore.Catalog.Application.ViewModels;
 
-namespace NerdStore.Catalog.Application.Services;
+namespace NerdStore.Catalog.Application.Services.Interfaces;
 
 public interface IProductAppService : IDisposable
 {

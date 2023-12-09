@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NerdStore.Catalog.Application.Services;
+using NerdStore.Catalog.Application.Services.Interfaces;
 using NerdStore.Catalog.Data;
 using NerdStore.Catalog.Data.Repositories;
 using NerdStore.Catalog.Domain.Events;
@@ -10,7 +11,7 @@ using NerdStore.Catalog.Domain.Interfaces.Services;
 using NerdStore.Catalog.Domain.Services;
 using NerdStore.Core.Messages.CommonMessages.IntegrationEvents;
 
-namespace NerdStore.Catalog.Application.Configuration;
+namespace NerdStore.Catalog.Application.Configurations;
 
 public static class CatalogDependencyInjectionConfiguration
 {

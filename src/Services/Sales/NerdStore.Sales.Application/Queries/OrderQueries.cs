@@ -1,4 +1,5 @@
 using NerdStore.Core.Extensions;
+using NerdStore.Sales.Application.Queries.Interfaces;
 using NerdStore.Sales.Application.Queries.ViewModels;
 using NerdStore.Sales.Domain.Interfaces.Repositories;
 using NerdStore.Sales.Domain.Models;

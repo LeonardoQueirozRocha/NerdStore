@@ -1,6 +1,6 @@
 using NerdStore.Sales.Application.Queries.ViewModels;
 
-namespace NerdStore.Sales.Application.Queries;
+namespace NerdStore.Sales.Application.Queries.Interfaces;
 
 public interface IOrderQueries
 {

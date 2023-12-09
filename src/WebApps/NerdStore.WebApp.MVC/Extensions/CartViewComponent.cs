@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using NerdStore.Sales.Application.Queries;
+using NerdStore.Sales.Application.Queries.Interfaces;
 
 namespace NerdStore.WebApp.MVC.Extensions;
 

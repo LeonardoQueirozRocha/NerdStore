@@ -1,4 +1,4 @@
-using NerdStore.Catalog.Application.Configuration;
+using NerdStore.Catalog.Application.Configurations;
 using NerdStore.Core.Configurations;
 using NerdStore.Payments.Data.Configurations;
 using NerdStore.Sales.Application.Configurations;
