@@ -1,4 +1,5 @@
 using AutoMapper;
+using NerdStore.Catalog.Application.Services.Interfaces;
 using NerdStore.Catalog.Application.ViewModels;
 using NerdStore.Catalog.Domain.Interfaces.Repositories;
 using NerdStore.Catalog.Domain.Interfaces.Services;

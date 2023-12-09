@@ -5,6 +5,7 @@ using NerdStore.Sales.Application.Commands;
 using NerdStore.Sales.Application.Events;
 using NerdStore.Sales.Application.Handlers;
 using NerdStore.Sales.Application.Queries;
+using NerdStore.Sales.Application.Queries.Interfaces;
 using NerdStore.Sales.Data;
 using NerdStore.Sales.Data.Repositories;
 using NerdStore.Sales.Domain.Interfaces.Repositories;

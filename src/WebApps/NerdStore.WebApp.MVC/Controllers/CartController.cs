@@ -1,10 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using NerdStore.Catalog.Application.Services;
+using NerdStore.Catalog.Application.Services.Interfaces;
 using NerdStore.Core.Communication.Mediator;
 using NerdStore.Core.Messages.CommonMessages.Notifications;
 using NerdStore.Sales.Application.Commands;
-using NerdStore.Sales.Application.Queries;
+using NerdStore.Sales.Application.Queries.Interfaces;
 using NerdStore.Sales.Application.Queries.ViewModels;
 using NerdStore.WebApp.MVC.Controllers.Base;
 

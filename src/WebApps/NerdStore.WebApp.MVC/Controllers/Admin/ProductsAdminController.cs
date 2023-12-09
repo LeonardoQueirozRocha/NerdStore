@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using NerdStore.Catalog.Application.Services;
+using NerdStore.Catalog.Application.Services.Interfaces;
 using NerdStore.Catalog.Application.ViewModels;
 
 namespace NerdStore.WebApp.MVC.Controllers.Admin;
