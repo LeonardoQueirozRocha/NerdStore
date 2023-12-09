@@ -48,14 +48,12 @@ public class CartController : MainController
             return RedirectToAction("ProductDetail", "Showcase", new { id });
         }
 
-        var command = new AddOrderItemCommand(
+        await _mediatorHandler.SendCommandAsync(new AddOrderItemCommand(
             CustomerId,
             product.Id,
             product.Name,
             quantity,
-            product.Value);
-
-        await _mediatorHandler.SendCommandAsync(command);
+            product.Value));
 
         if (IsValid()) return RedirectToAction("Index");
 
@@ -70,9 +68,7 @@ public class CartController : MainController
 
         if (product is null) return BadRequest();
 
-        var command = new RemoveOrderItemCommand(CustomerId, id);
-
-        await _mediatorHandler.SendCommandAsync(command);
+        await _mediatorHandler.SendCommandAsync(new RemoveOrderItemCommand(CustomerId, id));
 
         if (IsValid()) return RedirectToAction("Index");
 
@@ -86,12 +82,10 @@ public class CartController : MainController
 
         if (product is null) return BadRequest();
 
-        var command = new UpdateOrderItemCommand(
+        await _mediatorHandler.SendCommandAsync(new UpdateOrderItemCommand(
             CustomerId,
             product.Id,
-            quantity);
-
-        await _mediatorHandler.SendCommandAsync(command);
+            quantity));
 
         if (IsValid()) return RedirectToAction("Index");
 
@@ -101,9 +95,9 @@ public class CartController : MainController
     [HttpPost("apply-voucher")]
     public async Task<IActionResult> ApplyVoucher(string voucherCode)
     {
-        var command = new ApplyVoucherOrderCommand(CustomerId, voucherCode);
-
-        await _mediatorHandler.SendCommandAsync(command);
+        await _mediatorHandler.SendCommandAsync(new ApplyVoucherOrderCommand(
+            CustomerId,
+            voucherCode));
 
         if (IsValid()) return RedirectToAction("Index");
 
@@ -120,19 +114,18 @@ public class CartController : MainController
     public async Task<IActionResult> StartOrder(CartViewModel cartViewModel)
     {
         var cart = await _orderQueries.GetCustomerCartAsync(CustomerId);
-        var command = new StartOrderCommand(
+        
+        await _mediatorHandler.SendCommandAsync(new StartOrderCommand(
             cart.OrderId,
             CustomerId,
             cart.TotalValue,
             cartViewModel.Payment.CreditCardName,
             cartViewModel.Payment.CreditCardNumber,
             cartViewModel.Payment.CreditCardExpirationDate,
-            cartViewModel.Payment.CreditCardCvv);
-
-        await _mediatorHandler.SendCommandAsync(command);
+            cartViewModel.Payment.CreditCardCvv));
 
         if (IsValid()) return RedirectToAction("Index", "Order");
 
-        return View("OrderSummary", await _orderQueries.GetCustomerCartAsync(CustomerId));
+        return View("PurchaseSummary", await _orderQueries.GetCustomerCartAsync(CustomerId));
     }
 }

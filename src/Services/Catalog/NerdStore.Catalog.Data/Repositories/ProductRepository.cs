@@ -16,10 +16,12 @@ public class ProductRepository : IProductRepository
         => _context;
 
     public async Task<IEnumerable<Product>> GetAllAsync()
-        => await _context.Products.AsNoTracking().ToListAsync();
+        => await _context.Products
+            .AsNoTracking()
+            .ToListAsync();
 
     public async Task<Product> GetByIdAsync(Guid id)
-        => await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+        => await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
 
     public async Task<IEnumerable<Product>> GetByCategoryAsync(int code)
         => await _context.Products

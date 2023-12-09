@@ -9,7 +9,8 @@ namespace NerdStore.Catalog.Domain.Handlers;
 
 public class ProductEventHandler :
     INotificationHandler<ProductBelowStockEvent>,
-    INotificationHandler<StartedOrderIntegrationEvent>
+    INotificationHandler<StartedOrderIntegrationEvent>,
+    INotificationHandler<CancelOrderProcessingIntegrationEvent>
 {
     private readonly IProductRepository _productRepository;
     private readonly IStockService _stockService;
@@ -54,5 +55,10 @@ public class ProductEventHandler :
                 message.OrderId, 
                 message.CustomerId));
         }
+    }
+
+    public async Task Handle(CancelOrderProcessingIntegrationEvent message, CancellationToken cancellationToken)
+    {
+        await _stockService.ReplenishStockAsync(message.OrderProducts);
     }
 }

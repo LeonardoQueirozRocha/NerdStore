@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\NerdStore.Core\NerdStore.Core.csproj" />
     <ProjectReference Include="..\NerdStore.Payments.Business\NerdStore.Payments.Business.csproj" />
+    <ProjectReference Include="..\NerdStore.Payments.AntiCorruption\NerdStore.Payments.AntiCorruption.csproj" />
   </ItemGroup>
 
 </Project>
