@@ -13,6 +13,8 @@ public class CartViewModel
     public List<CartItemViewModel> Items { get; set; } = new List<CartItemViewModel>();
     public PaymentCartViewModel Payment { get; set; }
 
+    public CartViewModel(){}
+
     public CartViewModel(Order order)
     {
         CustomerId = order.CustomerId;

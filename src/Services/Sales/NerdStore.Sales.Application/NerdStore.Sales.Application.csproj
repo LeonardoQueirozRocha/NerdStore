@@ -2,6 +2,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\NerdStore.Core\NerdStore.Core.csproj" />
     <ProjectReference Include="..\NerdStore.Sales.Domain\NerdStore.Sales.Domain.csproj" />
+    <ProjectReference Include="..\NerdStore.Sales.Data\NerdStore.Sales.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.8.1" />

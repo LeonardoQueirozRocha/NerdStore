@@ -18,7 +18,10 @@ public class OrderCommandHandler :
     IRequestHandler<UpdateOrderItemCommand, bool>,
     IRequestHandler<RemoveOrderItemCommand, bool>,
     IRequestHandler<ApplyVoucherOrderCommand, bool>,
-    IRequestHandler<StartOrderCommand, bool>
+    IRequestHandler<StartOrderCommand, bool>,
+    IRequestHandler<FinalizeOrderCommand, bool>,
+    IRequestHandler<CancelOrderProcessingRestockStockCommand, bool>,
+    IRequestHandler<CancelOrderProcessingCommand, bool>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IMediatorHandler _mediatorHandler;
@@ -43,9 +46,18 @@ public class OrderCommandHandler :
             message.UnitValue);
 
         if (order is null)
-            CreateOrderDraft(message.CustomerId, message.ProductId, orderItem);
+        {
+            order = CreateOrderDraft(
+                message.CustomerId,
+                message.ProductId,
+                orderItem);
+        }
         else
-            UpdateOrder(order, orderItem);
+        {
+            UpdateOrder(
+                order,
+                orderItem);
+        }
 
         order.AddEvent(new OrderItemAddedEvent(
             order.CustomerId,
@@ -62,7 +74,7 @@ public class OrderCommandHandler :
     {
         if (!ValidateCommand(message)) return false;
 
-        var order = await GetOrderAsync(message.CustomerId);
+        var order = await GetOrderDraftAsync(message.CustomerId);
 
         if (order is null) return false;
 
@@ -93,7 +105,7 @@ public class OrderCommandHandler :
     {
         if (!ValidateCommand(message)) return false;
 
-        var order = await GetOrderAsync(message.CustomerId);
+        var order = await GetOrderDraftAsync(message.CustomerId);
 
         if (order is null) return false;
 
@@ -123,7 +135,7 @@ public class OrderCommandHandler :
     {
         if (!ValidateCommand(message)) return false;
 
-        var order = await GetOrderAsync(message.CustomerId);
+        var order = await GetOrderDraftAsync(message.CustomerId);
 
         if (order is null) return false;
 
@@ -178,12 +190,56 @@ public class OrderCommandHandler :
         return await _orderRepository.UnitOfWork.Commit();
     }
 
-    private void CreateOrderDraft(Guid customerId, Guid productId, OrderItem item)
+    public async Task<bool> Handle(FinalizeOrderCommand message, CancellationToken cancellationToken)
+    {
+        var order = await GetOrderAsync(message.OrderId);
+
+        if (order is null) return false;
+
+        order.FinalizeOrder();
+        order.AddEvent(new FinalizeOrderEvent(message.OrderId));
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
+    public async Task<bool> Handle(CancelOrderProcessingRestockStockCommand message, CancellationToken cancellationToken)
+    {
+        var order = await GetOrderAsync(message.OrderId);
+
+        if (order is null) return false;
+
+        var orderProductsList = InsertOrderProductList(order);
+
+        order.AddEvent(new CancelOrderProcessingIntegrationEvent(
+            order.Id,
+            order.CustomerId,
+            orderProductsList));
+
+        order.MakeDraft();
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
+    public async Task<bool> Handle(CancelOrderProcessingCommand message, CancellationToken cancellationToken)
+    {
+        var order = await GetOrderAsync(message.OrderId);
+
+        if (order is null) return false;
+
+        order.MakeDraft();
+
+        return await _orderRepository.UnitOfWork.Commit();
+    }
+
+    private Order CreateOrderDraft(
+        Guid customerId,
+        Guid productId,
+        OrderItem item)
     {
         var order = Order.OrderFactory.NewOrderDraft(customerId);
         order.AddItem(item);
         _orderRepository.Add(order);
         order.AddEvent(new OrderDraftStartedEvent(customerId, productId));
+
+        return order;
     }
 
     private void UpdateOrder(Order order, OrderItem item)
@@ -213,9 +269,22 @@ public class OrderCommandHandler :
             await _mediatorHandler.PublishNotificationAsync(
                 new DomainNotification(error.ErrorCode, error.ErrorMessage)));
 
-    private async Task<Order> GetOrderAsync(Guid customerId)
+    private async Task<Order> GetOrderDraftAsync(Guid customerId)
     {
         var order = await _orderRepository.GetOrderDraftByCustomerIdAsync(customerId);
+
+        if (order is null)
+        {
+            await _mediatorHandler.PublishNotificationAsync(new DomainNotification("order", "Pedido não encontrado!"));
+            return null;
+        }
+
+        return order;
+    }
+
+    private async Task<Order> GetOrderAsync(Guid orderId)
+    {
+        var order = await _orderRepository.GetByIdAsync(orderId);
 
         if (order is null)
         {
