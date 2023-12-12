@@ -1,7 +1,7 @@
 using FluentValidation.Results;
 using NerdStore.Core.DomainObjects;
-using NerdStore.Sales.Application.Validators;
 using NerdStore.Sales.Domain.Models.Enums;
+using NerdStore.Sales.Domain.Validators;
 
 namespace NerdStore.Sales.Domain.Models;
 
