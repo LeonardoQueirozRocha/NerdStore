@@ -84,11 +84,6 @@ public class OrderCommandHandler :
 
         order.UpdateUnits(orderItem, message.Quantity);
 
-        order.AddEvent(new UpdatedOrderEvent(
-            order.CustomerId,
-            order.Id,
-            order.TotalValue));
-
         order.AddEvent(new ProductOrderUpdatedEvent(
             order.CustomerId,
             order.Id,
@@ -114,11 +109,6 @@ public class OrderCommandHandler :
         if (orderItem is null) return false;
 
         order.RemoveItem(orderItem);
-
-        order.AddEvent(new UpdatedOrderEvent(
-            order.CustomerId,
-            order.Id,
-            order.TotalValue));
 
         order.AddEvent(new ProductOrderRemovedEvent(
             message.CustomerId,
@@ -150,11 +140,6 @@ public class OrderCommandHandler :
             PublishErrorsNotificationsAsync(applicableVoucherValidator.Errors);
             return false;
         }
-
-        order.AddEvent(new UpdatedOrderEvent(
-            order.CustomerId,
-            order.Id,
-            order.TotalValue));
 
         order.AddEvent(new OrderVoucherApplied(
             message.CustomerId,

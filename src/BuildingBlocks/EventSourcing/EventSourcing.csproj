@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\Services\Core\NerdStore.Core\NerdStore.Core.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EventStore.Client" Version="22.0.0"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0"/>
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+</Project>
