@@ -66,7 +66,7 @@ public class StockService : IStockService
         product.DebitStock(quantity);
 
         if (product.QuantityInStock < 10)
-            await _mediatorHandler.PublishEventAsync(new ProductBelowStockEvent(product.Id, product.QuantityInStock));
+            await _mediatorHandler.PublishDomainEventAsync(new ProductBelowStockEvent(product.Id, product.QuantityInStock));
 
         _productRepository.Update(product);
         return true;
