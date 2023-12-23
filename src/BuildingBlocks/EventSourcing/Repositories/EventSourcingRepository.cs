@@ -31,7 +31,7 @@ public class EventSourcingRepository : IEventSourcingRepository
     {
         var storedEvents = await _eventStoreService
             .GetConnection()
-            .ReadStreamEventsBackwardAsync(
+            .ReadStreamEventsForwardAsync(
                 stream: aggregateId.ToString(),
                 start: EventSourcingConst.PositionToStartReadingFrom,
                 count: EventSourcingConst.CountToReadFromThePosition,

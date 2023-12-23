@@ -3,7 +3,7 @@
     <ProjectReference Include="..\..\Services\Core\NerdStore.Core\NerdStore.Core.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EventStore.Client" Version="22.0.0"/>
+    <PackageReference Include="EventStore.Client" Version="5.0.1"/>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0"/>
   </ItemGroup>
   <PropertyGroup>
