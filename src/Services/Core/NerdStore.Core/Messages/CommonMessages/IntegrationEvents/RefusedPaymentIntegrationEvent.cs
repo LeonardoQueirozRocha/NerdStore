@@ -17,7 +17,7 @@ public class RefusedPaymentIntegrationEvent : IntegrationEvent
         Guid transactionId,
         decimal total)
     {
-        AggregateId = paymentId;
+        AggregateId = orderId;
         OrderId = orderId;
         CustomerId = customerId;
         PaymentId = paymentId;
